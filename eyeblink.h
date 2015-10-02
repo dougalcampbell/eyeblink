@@ -1,14 +1,43 @@
 /**
  * eyeblink.h
  * 
+ * Create a pair of blinking eyes that fade in, blink a few times, then
+ * fade away. Header.
+ *
+ * Suggestions and GitHub pull requests are welcome.
+ * 
  * @author Dougal Campbell <dougal@gunters.org>
  * @see https://community.particle.io/t/halloween-blinky-eyes/16065
+ * @see http://dougal.gunters.org/
  */
 #include "application.h"
 #include "neopixel/neopixel.h"
 
-enum States { WAITING, FADEIN, ON, OFF, FADEOUT };
-enum LogLevel { LOG_OFF, LOG_ERROR, LOG_WARN, LOG_INFO, LOG_DEBUG, LOG_TRACE };
+#define EYBLINK_VERSION "1.0.0"
+/**
+ * The various states for our state machnine, which is handled in our `step()`
+ * method. See the diagram in `eyeblink.cpp`.
+ */
+enum States {
+	WAITING,       // Dark. Waiting to appear...
+	FADEIN,        // Going from dark to on...
+	ON,            // Fully on. Maybe blinking.
+	OFF,           // The off part of a blink.
+	FADEOUT        // Going back to dark. And waiting.
+};
+
+/**
+ * If Serial is connected, you can set the `loglevel` property of this
+ * instance, to get some info. I suggest LOG_INFO. 
+ */
+enum LogLevel {
+	LOG_OFF,       // Shut up.
+	LOG_ERROR,     // Just tell me about critical errors
+	LOG_WARN,      // Warning! Warning! Danger, Will Robinson!
+	LOG_INFO,      // Here's some info about what I'm doing
+	LOG_DEBUG,     // Here's some low-level details
+	LOG_TRACE      // FIREHOSE!
+};
 
 class Eyeblink {
 	public:
