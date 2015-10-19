@@ -1,11 +1,11 @@
 /**
  * eyeblink.h
- * 
+ *
  * Create a pair of blinking eyes that fade in, blink a few times, then
  * fade away. Header.
  *
  * Suggestions and GitHub pull requests are welcome.
- * 
+ *
  * @author Dougal Campbell <dougal@gunters.org>
  * @see https://community.particle.io/t/halloween-blinky-eyes/16065
  * @see http://dougal.gunters.org/
@@ -28,7 +28,7 @@ enum States {
 
 /**
  * If Serial is connected, you can set the `loglevel` property of this
- * instance, to get some info. I suggest LOG_INFO. 
+ * instance, to get some info. I suggest LOG_INFO.
  */
 enum LogLevel {
 	LOG_OFF,       // Shut up.
@@ -43,9 +43,10 @@ class Eyeblink {
 	public:
 		// constructor
 		Eyeblink(Adafruit_NeoPixel* s, uint16_t start, uint8_t sep, uint32_t col);
+		Eyeblink(Adafruit_NeoPixel* s);
 		Eyeblink();
 		~Eyeblink();
-		
+
 		// getters/setters
 		uint32_t getColor();
 		uint32_t getColorCurrent();
@@ -99,7 +100,7 @@ class Eyeblink {
 		uint8_t eyeSep;
 		uint8_t blinkCount = blinksMax;
 		uint32_t startEvent, nextEvent;
-		
+
 };
 
-// - fin - 
+// - fin -

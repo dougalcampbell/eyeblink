@@ -1,16 +1,16 @@
 /**
  * eyeblink.cpp
- * 
+ *
  * Create a pair of blinking eyes that fade in, blink a few times, then
  * fade away.
- * 
+ *
  * The Eyeblink animation is designed so that many instances can run simultaneously
- * on a single LED strip. And if other strip animation code also uses millis() 
+ * on a single LED strip. And if other strip animation code also uses millis()
  * scheduling and doesn't fiddle with the Neopixel pixels buffer, they could probably
  * run alongside this code, as well.
- * 
+ *
  * Suggestions and GitHub pull requests are welcome.
- * 
+ *
  * @author Dougal Campbell <dougal@gunters.org>
  * @see https://community.particle.io/t/halloween-blinky-eyes/16065
  * @see http://dougal.gunters.org/
@@ -18,14 +18,14 @@
 
 #include "eyeblinks.h"
 
-// Constructor 
-Eyeblink::Eyeblink(Adafruit_NeoPixel* s, uint16_t start, uint8_t sep, uint32_t col) 
+// Constructor
+Eyeblink::Eyeblink(Adafruit_NeoPixel* s, uint16_t start, uint8_t sep, uint32_t col)
 {
     setStrip(s);
     startPos = start;
     eyeSep = sep;
     color = col;
-    
+
     state = WAITING;
     colorCurrent = 0x00000000;
     fadeInTime = random(0, 4000) + 1000;
@@ -40,14 +40,35 @@ Eyeblink::Eyeblink(Adafruit_NeoPixel* s, uint16_t start, uint8_t sep, uint32_t c
     }
 }
 
+Eyeblink::Eyeblink(Adafruit_NeoPixel* s)
+{
+    setStrip(s);
+    startPos = 0;
+    eyeSep = 1;
+    color = 0x00ffffff;
+
+    state = WAITING;
+    colorCurrent = 0x00000000;
+    fadeInTime = 0;
+    fadeOutTime = 0;
+    blinksMin = 0;
+    blinksMax = 5;
+    blinkCount = random(blinksMin, blinksMax);
+    startEvent = millis();
+    nextEvent = startEvent + random(15000);
+    if (debuglevel >= LOG_INFO) {
+        Serial.println("Eyeblink created");
+    }
+}
+
 /**
  * Empty constructor
- * 
+ *
  * Sets a few sane defaults, but gives you complete freedom to
  * override them, of course. Dont forget to call setStrip(),
  * setStartEvent(), and setNextEvent() in your main code.
  */
-Eyeblink::Eyeblink()  
+Eyeblink::Eyeblink()
 {
     state = WAITING;
     startPos = 0;
@@ -66,7 +87,7 @@ Eyeblink::Eyeblink()
     }
 }
 
-Eyeblink::~Eyeblink()  
+Eyeblink::~Eyeblink()
 {
     // Go dark on destruction
     color = 0x00000000;
@@ -76,7 +97,7 @@ Eyeblink::~Eyeblink()
 
 /**
  * State machine. Wait for the nextEvent time, and change states.
- * 
+ *
  *                     (blinkCount)
  *                       +-----+
  *                       v     |
@@ -84,17 +105,17 @@ Eyeblink::~Eyeblink()
  *    ^                  |
  *    |                  v
  *    +---------------FADEOUT
- * 
+ *
  * @TODO * Put the more of the wait times into variables that can be configured
  *         at run-time. E.g., blink on/off time.
- * 
+ *
  *       * Smart automatic randomization/distribution of eyes along the strip.
- * 
+ *
  *       * Matrix support?
  */
 void Eyeblink::step() {
     uint32_t currentTime = millis();
-    
+
     switch (state) {
         // "Baby, what time is it?"
         case WAITING:
@@ -135,7 +156,7 @@ void Eyeblink::step() {
                     state = OFF;
                     colorCurrent = 0x00000000; // black
                     startEvent = currentTime;
-                    nextEvent = startEvent + random(50, 150);
+                          nextEvent = startEvent + random(50, 150);
                     if (debuglevel >= LOG_INFO) {
                         Serial.print("ON complete. Going to OFF in ");
                         Serial.print(nextEvent - startEvent);
@@ -214,15 +235,15 @@ uint32_t Eyeblink::scaleColor(uint32_t color, uint32_t scale, uint32_t min, uint
      * Cheap way to adjust brightness of a color, based on a sliding value between
      * a min and max.
      */
-     
+
     // bust out the color components
     uint8_t r = color >> 16 & 0xff;
     uint8_t g = color >> 8 & 0xff;
     uint8_t b = color & 0xff;
-    
+
     uint8_t factor = map(scale, min, max, 0, 255);
 
-    // Scale the values 
+    // Scale the values
     r = ((uint16_t) r * factor) / 255;
     g = ((uint16_t) g * factor) / 255;
     b = ((uint16_t) b * factor) / 255;
@@ -258,7 +279,7 @@ uint32_t Eyeblink::scaleColor(uint32_t color, uint32_t scale, uint32_t min, uint
 
 /**
  * reset()
- * 
+ *
  * Reset an instance
  */
 void Eyeblink::reset() {
